@@ -1,13 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$serverName = "DESKTOP-06731U1\\SQLEXPRESS";
-$connectionOptions = ["Database" => "SOFTENG", "Uid" => "", "PWD" => ""];
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-    exit();
-}
+require_once 'db.php';
 
 $token       = isset($_POST['token'])            ? trim($_POST['token'])      : null;
 $newPassword = isset($_POST['new_password'])     ? $_POST['new_password']     : null;
