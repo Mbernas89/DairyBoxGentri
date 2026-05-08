@@ -1,16 +1,7 @@
 <?php
 session_start();
 
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
+require_once 'db.php';
 
 $username = $_POST['username'];
 $password = $_POST['password'];
