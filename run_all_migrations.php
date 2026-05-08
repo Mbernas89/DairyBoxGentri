@@ -1,27 +1,17 @@
 <?php
-/**
- * GenTri's Best - All-in-One Migration Runner
- * Run this file once via browser to bring the database fully up to date.
- * Safe to re-run: every step checks before acting (idempotent).
- * Access at: http://localhost/gentrisbest/run_all_migrations.php
- */
-
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = ["Database" => "SOFTENG", "Uid" => "", "PWD" => ""];
-
-$steps = [];
-
 function ok($msg)   { return ['status' => 'ok',   'msg' => $msg]; }
 function err($msg)  { return ['status' => 'err',  'msg' => $msg]; }
 function info($msg) { return ['status' => 'info', 'msg' => $msg]; }
 
-$conn = sqlsrv_connect($serverName, $connectionOptions);
+$steps = [];
+
+require_once 'db.php';
 if ($conn === false) {
-    $steps[] = err("Database connection failed: " . print_r(sqlsrv_errors(), true));
+    $steps[] = err("Database connection failed");
     $connFailed = true;
 } else {
     $connFailed = false;
-    $steps[] = ok("Connected to database (SOFTENG on DESKTOP-06731U1\\SQLEXPRESS)");
+    $steps[] = ok("Connected to Azure SQL Database (SOFTENG)");
 }
 
 if (!$connFailed) {
