@@ -4,16 +4,9 @@
  * Access at: http://localhost/gentrisbest/setup.php
  */
 
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
+require_once 'db.php';
 if ($conn === false) {
-    die("Database connection failed: " . print_r(sqlsrv_errors(), true));
+    die("Database connection failed");
 }
 
 $output = [];
