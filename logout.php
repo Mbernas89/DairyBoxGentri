@@ -3,8 +3,7 @@ session_start();
 
 // Log the logout event before destroying session
 if (isset($_SESSION['username'])) {
-    $serverName = "DESKTOP-06731U1\SQLEXPRESS";
-    $conn = sqlsrv_connect($serverName, ["Database" => "SOFTENG", "Uid" => "", "PWD" => ""]);
+    require_once 'db.php';
     if ($conn) {
         $username = $_SESSION['username'];
         $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : 'USER';
