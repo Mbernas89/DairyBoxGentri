@@ -10,18 +10,7 @@ if (!isset($_SESSION['username'])) {
 
 $action = isset($_POST['action']) ? $_POST['action'] : null;
 
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-    exit();
-}
+require_once 'db.php';
 
 $currentUsername = $_SESSION['username'];
 
