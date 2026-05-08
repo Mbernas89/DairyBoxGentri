@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenTri's Best | Dashboard</title>
+    <link rel="icon" type="Images/png" href="Images/logo1.jpg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        :root {
+            --sky-blue: #0ea5e9;
+            --sky-blue-hover: #0284c7;
+            --sky-blue-light: #e0f2fe;
+            --body-bg: #f0f9ff;
+            --card-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+            --text-primary: #212529;
+            --text-muted: #6c757d;
+            --border-color: rgba(0,0,0,.05);
+            --input-bg: #ffffff;
+            --input-border: #dee2e6;
+            --input-text: #212529;
+        }
+
+        body.dark-mode {
+            --body-bg: #0f172a;
+            --card-bg: #1e293b;
+            --sidebar-bg: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255,255,255,.07);
+            --input-bg: #273549;
+            --input-border: #334155;
+            --input-text: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .text-sky {
+            color: var(--sky-blue) !important;
+        }
+
+        .bg-sky {
+            background-color: var(--sky-blue) !important;
+            color: white;
+        }
+
+        .bg-sky-subtle {
+            background-color: var(--sky-blue-light) !important;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            box-shadow: 0 0.125rem 0.25rem rgba(14, 165, 233, 0.1);
+            background-color: var(--sidebar-bg);
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-sticky {
+            height: calc(100vh - 76px);
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item .nav-link {
+            color: #495057;
+            padding: 0.8rem 1.5rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.2s;
+        }
+
+        .nav-item .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            color: #6c757d;
+        }
+
+        .nav-item .nav-link:hover,
+        .nav-item .nav-link.active {
+            color: var(--sky-blue);
+            background-color: var(--sky-blue-light);
+        }
+
+        .nav-item .nav-link:hover i,
+        .nav-item .nav-link.active i {
+            color: var(--sky-blue);
+        }
+
+        .user-profile {
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-top: auto;
+            background-color: var(--sidebar-bg);
+            transition: background-color 0.3s;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--sky-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2);
+        }
+
+        .stat-card {
+            border-radius: 1rem;
+            border: none;
+            box-shadow: 0 0.125rem 0.5rem rgba(14, 165, 233, 0.1);
+            transition: transform 0.2s;
+            background-color: white;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.5rem 1rem rgba(14, 165, 233, 0.15);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .btn-outline-sky {
+            color: var(--sky-blue);
+            border-color: var(--sky-blue);
+            background-color: transparent;
+        }
+
+        .btn-outline-sky:hover {
+            color: white;
+            background-color: var(--sky-blue);
+        }
+
+        .btn-sky {
+            background-color: var(--sky-blue);
+            border-color: var(--sky-blue);
+            color: white;
+        }
+
+        .btn-sky:hover {
+            background-color: var(--sky-blue-hover);
+            border-color: var(--sky-blue-hover);
+            color: white;
+        }
+
+        .btn-order-fixed {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            z-index: 50;
+            margin-top: auto;
+            box-shadow: 0 -2px 8px rgba(14, 165, 233, 0.15);
+        }
+
+        .product-card-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-button-wrapper {
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar-sticky {
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Dark mode overrides */
+        body.dark-mode .card,
+        body.dark-mode .stat-card {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .nav-item .nav-link { color: var(--text-muted); }
+        body.dark-mode .nav-item .nav-link:hover,
+        body.dark-mode .nav-item .nav-link.active { color: var(--sky-blue); background-color: rgba(14,165,233,0.12); }
+        body.dark-mode .nav-item .nav-link i { color: var(--text-muted); }
+        body.dark-mode .nav-item .nav-link:hover i,
+        body.dark-mode .nav-item .nav-link.active i { color: var(--sky-blue); }
+
+        body.dark-mode .form-control,
+        body.dark-mode .form-select {
+            background-color: var(--input-bg);
+            border-color: var(--input-border);
+            color: var(--input-text);
+        }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+        }
+
+        body.dark-mode .table { color: var(--text-primary); }
+        body.dark-mode .table > :not(caption) > * > * { background-color: var(--card-bg); border-color: var(--border-color); }
+        body.dark-mode .table-hover > tbody > tr:hover > * { background-color: rgba(14,165,233,0.06); }
+
+        body.dark-mode .modal-content {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .modal-header,
+        body.dark-mode .modal-footer { border-color: var(--border-color); }
+
+        body.dark-mode .text-muted { color: var(--text-muted) !important; }
+
+        body.dark-mode .sidebar { background-color: var(--sidebar-bg); }
+        body.dark-mode .sidebar .user-profile { background-color: var(--sidebar-bg); border-color: var(--border-color); }
+
+        body.dark-mode footer {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-muted) !important;
+        }
+
+        /* Dark mode toggle pill */
+        .dark-mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.1rem;
+            border-radius: 0.75rem;
+            background-color: var(--body-bg);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s;
+        }
+
+        .dark-mode-toggle .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .dark-mode-toggle .toggle-label i {
+            font-size: 1.1rem;
+            width: 22px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar h-100 d-flex flex-column dashboard-layout">
+                <div class="d-flex align-items-center px-4 py-3 border-bottom bg-white">
+                    <div class="bg-sky text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border border-2 border-white"
+                        style="width: 40px; height: 40px; font-size: 1.2rem; overflow: hidden;">
+                        <img src="Images/logo1.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <h5 class="mb-0 fw-bold text-sky fs-5">Dairy Box GenTri</h5>
+                </div>
+
+                <div class="sidebar-sticky d-flex flex-column flex-grow-1 py-3 bg-white">
+                    <ul class="nav flex-column mb-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#" onclick="showSection('products'); loadBrowseProducts()">
+                                <i class="fa-solid fa-store"></i> Products
+                            </a>
+                        </li>
+                        <li class="nav-item" id="cartNavItem" style="display: none;">
+                            <a class="nav-link position-relative" href="#" onclick="showSection('cart'); loadUserCart()">
+                                <i class="fa-solid fa-cart-shopping"></i> Cart
+                                <span class="badge bg-danger rounded-pill position-absolute" id="cartBadge"
+                                    style="top: 6px; right: 10px; font-size: 0.65rem; display: none;">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" id="analyticsNavItem">
+                            <a class="nav-link" href="#" onclick="showSection('analytics'); loadOrderHistory()">
+                                <i class="fa-solid fa-history"></i> Order History
+                            </a>
+                        </li>
+                        <li class="nav-item" id="inventoryNavItem" style="display: none;">
+                            <a class="nav-link" href="#" onclick="showSection('inventory'); loadInventory()">
+                                <i class="fa-solid fa-boxes-stacked"></i> Inventory
+                            </a>
+                        </li>
+                        <li class="nav-item" id="posNavItem" style="display: none;">
+                            <a class="nav-link" href="#" onclick="showSection('pos'); loadPOSProducts()">
+                                <i class="fa-solid fa-cash-register"></i> POS
+                            </a>
+                        </li>
+                        <li class="nav-item" id="reportsNavItem">
+                            <a class="nav-link" href="#" onclick="showSection('reports'); loadReports()">
+                                <i class="fa-solid fa-file-invoice"></i> Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('settings')">
+                                <i class="fa-solid fa-gear"></i> Settings
+                            </a>
+                        </li>
+                        <li class="nav-item" id="adminNavItem" style="display: none;">
+                            <a class="nav-link" href="#" onclick="showSection('admin'); loadAllUsers()">
+                                <i class="fa-solid fa-shield-halved"></i> Admin Control
+                            </a>
+                        </li>
+                        <li class="nav-item" id="logsNavItem" style="display: none;">
+                            <a class="nav-link" href="#" onclick="showSection('logs'); loadActivityLogs()">
+                                <i class="fa-solid fa-clipboard-list"></i> Activity Logs
+                            </a>
+                        </li>
+                    </ul>
+
+                    
+                    <div class="user-profile mt-auto">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar me-3 shadow-sm" id="userInitials">--</div>
+                            <div class="overflow-hidden">
+                                <h6 class="mb-0 fw-bold text-truncate text-dark" id="userNameDisplay">Loading...</h6>
+                                <span class="badge bg-success text-uppercase mt-1" id="userRoleDisplay"
+                                    style="letter-spacing: 0.5px;">Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <button id="logoutBtn"
+                            class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center fw-medium shadow-sm">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </nav>
+         
+            <main class="col-md-9 ms-sm-auto col-lg-10 main-content">
+                <header class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+                    <div>
+                        <h1 class="h2 fw-bold text-dark mb-1" id="welcomeMessage">Welcome back</h1>
+                        <p class="text-muted mb-0">Dairy? It's on me!</p>
+                    </div>
+                </header>
+
+                <!-- Purchase History Section -->
+                <section id="adminSection" style="display: none;">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fa-solid fa-shield-halved me-2"></i>Admin Control Panel</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Full Name</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Contact</th>
+                                            <th>Account Type</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading users...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Products Browse Section -->
+                <section id="productsSection">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-sky text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fa-solid fa-store me-2"></i>Browse Products</h5>
+                            <span class="badge bg-light text-sky" id="browseProductCount">0 available</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fa-solid fa-magnifying-glass text-sky"></i>
+                                    </span>
+                                    <input type="text" autocomplete="off" class="form-control border-start-0" id="searchBrowseProducts" placeholder="Search by product name or category...">
+                                </div>
+                            </div>
+                            <div class="row" id="browseProductsContainer">
+                                <div class="col-12 text-center text-muted py-5" >
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i> Loading products...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cart Section -->
+                <section id="cartSection" style="display: none;">
+                    <div id="cartSectionContainer">
+                        <div class="text-center text-muted py-5">
+                            <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Order History Section -->
+                <section id="analyticsSection" style="display: none;">
+                    <!-- All Order History Container -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-sky text-white d-flex justify-content-between">
+                            <h5 class="mb-0"><i class="fa-solid fa-history me-2"></i>Order History</h5>
+                            <span class="badge bg-light text-sky" id="orderHistoryCount">0 orders</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4" id="searchBarContainer" style="display: none;">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fa-solid fa-magnifying-glass text-sky"></i>
+                                    </span>
+                                    <input type="text" autocomplete="off" class="form-control border-start-0" id="searchOrdersInput" placeholder="Search by customer name, order #, or product...">
+                                    <button class="btn btn-outline-secondary" type="button" id="clearSearchOrdersBtn">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-2" id="searchOrdersInfo" style="display: none;">Searching in <strong id="searchOrdersResultText"></strong></small>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th id="customerHeaderCol" style="display: none;">Customer</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Total Price</th>
+                                            <th>Order Date</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Action</th>     
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orderHistoryTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">
+                                                <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading order history...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Inventory Section -->
+                <section id="inventorySection" style="display: none;">
+                    <div class="row g-4">
+                        <!-- Add Product Form -->
+                         <!-- class - made sure that the add part arent scaling with the list -->
+                        <div class="d-flex flex-column h-100 col-lg-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-sky text-white">
+                                    <h5 class="mb-0"><i class="fa-solid fa-box me-2"></i>Add New Product</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="addProductForm" autocomplete="off">
+                                        <div class="mb-3">
+                                            <label for="productName" class="form-label fw-medium">Product Name</label>
+                                            <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="productCategory" class="form-label fw-medium">Category</label>
+                                            <input type="text" class="form-control" id="productCategory" placeholder="e.g., Milk, Cheese, Yogurt">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="productDescription" class="form-label fw-medium">Description</label>
+                                            <textarea class="form-control" id="productDescription" rows="2" placeholder="Product description"></textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="productPrice" class="form-label fw-medium">Price</label>
+                                                <input type="number" class="form-control" id="productPrice" placeholder="0.00" step="0.01" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="productQuantity" class="form-label fw-medium">Quantity</label>
+                                                <input type="number" class="form-control" id="productQuantity" placeholder="0" value="0" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="productWholesalePrice" class="form-label fw-medium">Wholesale Price <span class="badge bg-info">Optional</span></label>
+                                            <small class="text-muted d-block mb-2">Applied when customer has 10+ orders</small>
+                                            <input type="number" class="form-control" id="productWholesalePrice" placeholder="0.00" step="0.01">
+                                        </div>
+                                        <button type="submit" class="btn btn-sky w-100 fw-medium">
+                                            <i class="fa-solid fa-plus me-2"></i>Add Product
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Products List -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-sky text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fa-solid fa-list me-2"></i>Product Inventory</h5>
+                                    <span class="badge bg-light text-sky" id="productCount">0 products</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0">
+                                                <i class="fa-solid fa-magnifying-glass text-sky"></i>
+                                            </span>
+                                            <input type="text" autocomplete="off" class="form-control border-start-0" id="searchProducts" placeholder="Search by product name or category...">
+                                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">
+                                                <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted d-block mt-2" id="searchInfo" style="display: none;">Searching in <strong id="searchResultText"></strong></small>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Product Name</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Wholesale Price</th>
+                                                    <th>Quantity</th>
+                                                    <th>Status</th>
+                                                    <th id="actionColumn" name="actionColumn">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="productsTableBody">
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted py-4">
+                                                        <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading products...
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- POS Section (Front Desk Only) -->
+                <section id="posSection" style="display: none;">
+                    <div class="row g-4">
+                        <!-- Products Column -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-sky text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fa-solid fa-cash-register me-2"></i>Point of Sale - Walk-in Customers</h5>
+                                    <span class="badge bg-light text-sky" id="posProductCount">0 available</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0">
+                                                <i class="fa-solid fa-magnifying-glass text-sky"></i>
+                                            </span>
+                                            <input type="text" autocomplete="off" class="form-control border-start-0" id="searchPOSProducts" placeholder="Search by product name or category...">
+                                        </div>
+                                    </div>
+                                    <div class="row" id="posProductsContainer">
+                                        <div class="col-12 text-center text-muted py-5">
+                                            <i class="fa-solid fa-spinner fa-spin me-2"></i> Loading products...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shopping Cart Column -->
+                        <div class="col-lg-4">
+                            <div id="posCartContainer">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fa-solid fa-shopping-cart me-2"></i>Cart is empty
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Full Width Cart Summary (appears below when items exist) -->
+                    <div class="mt-4" id="posCartSummaryContainer" style="display: none;">
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reportsSection" style="display: none;">
+                    <!-- Summary Cards -->
+                    <div class="row g-3 mb-4" id="reportsSummaryCards">
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm stat-card">
+                                <div class="card-body d-flex align-items-center gap-3">
+                                    <div class="stat-icon bg-sky-subtle">
+                                        <i class="fa-solid fa-peso-sign text-sky"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small fw-medium">Total Revenue</div>
+                                        <div class="fw-bold fs-5" id="reportTotalRevenue">₱0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm stat-card">
+                                <div class="card-body d-flex align-items-center gap-3">
+                                    <div class="stat-icon bg-sky-subtle">
+                                        <i class="fa-solid fa-cart-shopping text-sky"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small fw-medium">Total Orders</div>
+                                        <div class="fw-bold fs-5" id="reportTotalOrders">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm stat-card">
+                                <div class="card-body d-flex align-items-center gap-3">
+                                    <div class="stat-icon bg-sky-subtle">
+                                        <i class="fa-solid fa-boxes-stacked text-sky"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small fw-medium">Units Sold</div>
+                                        <div class="fw-bold fs-5" id="reportUnitsSold">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm stat-card">
+                                <div class="card-body d-flex align-items-center gap-3">
+                                    <div class="stat-icon bg-sky-subtle">
+                                        <i class="fa-solid fa-chart-line text-sky"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small fw-medium">Avg Order Value</div>
+                                        <div class="fw-bold fs-5" id="reportAvgOrder">₱0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sales Report Table -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-sky text-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <h5 class="mb-0" id="reportTitle"><i class="fa-solid fa-file-invoice me-2"></i>Sales Report</h5>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Report period filter">
+                                    <input type="radio" class="btn-check" name="reportPeriod" id="reportToday" value="today" checked>
+                                    <label class="btn btn-outline-light" for="reportToday">Today</label>
+                                    <input type="radio" class="btn-check" name="reportPeriod" id="reportWeekly" value="weekly">
+                                    <label class="btn btn-outline-light" for="reportWeekly">Weekly</label>
+                                    <input type="radio" class="btn-check" name="reportPeriod" id="reportMonthly" value="monthly">
+                                    <label class="btn btn-outline-light" for="reportMonthly">Monthly</label>
+                                </div>
+                                <span class="badge bg-light text-sky" id="reportOrderCount">0 orders</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Customer</th>
+                                            <th>Product</th>
+                                            <th>Qty</th>
+                                            <th>Unit Price</th>
+                                            <th>Total</th>
+                                            <th>Payment</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reportsTableBody">
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted py-4">
+                                                <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading report...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settingsSection" style="display: none;">
+                    <div class="row g-4">
+                        <!-- Account Settings -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-sky text-white">
+                                    <h5 class="mb-0"><i class="fa-solid fa-user me-2"></i>Account Settings</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Username</label>
+                                        <input type="text" class="form-control" id="settingsUsername" disabled>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Email</label>
+                                        <input type="email" class="form-control" id="settingsEmail" disabled>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Contact Number</label>
+                                        <input type="tel" class="form-control" id="settingsContact" disabled>
+                                    </div>
+                                    <div class="mb-3" id="accountTypeField">
+                                        <label class="form-label fw-medium">Account Type</label>
+                                        <input type="text" class="form-control" id="settingsAccountType" disabled>
+                                    </div>
+                                    <button type="button" class="btn btn-sky w-100 fw-medium" id="editAccountBtn">
+                                        <i class="fa-solid fa-edit me-2"></i>Edit Account
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-sky text-white">
+                                    <h5 class="mb-0"><i class="fa-solid fa-gear me-2"></i>Settings</h5>
+                                </div>
+                                <div class="card-body d-flex flex-column gap-3">
+                                    <div class="dark-mode-toggle">
+                                        <span class="toggle-label">
+                                            <i class="fa-solid fa-moon text-sky"></i>
+                                            Dark Mode
+                                        </span>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" id="darkModeToggle" role="switch">
+                                        </div>
+                                    </div>
+                                    <hr class="my-1">
+                                    <h6 class="fw-medium mb-1 text-muted" style="font-size:0.78rem;letter-spacing:.05em;text-transform:uppercase;">Danger Zone</h6>
+                                    <button type="button" class="btn btn-outline-danger w-100 fw-medium" id="changePasswordBtn">
+                                        <i class="fa-solid fa-lock me-2"></i>Change Password
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Activity Logs Section (Admin only) -->
+                <section id="logsSection" style="display: none;">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-dark text-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <h5 class="mb-0"><i class="fa-solid fa-clipboard-list me-2"></i>Activity Logs</h5>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <select class="form-select form-select-sm" id="logsFilterAction" onchange="loadActivityLogs(1)" style="width:auto;">
+                                    <option value="">All Actions</option>
+                                    <option value="LOGIN">Login</option>
+                                    <option value="LOGOUT">Logout</option>
+                                    <option value="ORDER_STATUS_UPDATE">Order Status Update</option>
+                                    <option value="ORDER_CANCELLED">Order Cancelled</option>
+                                    <option value="ORDER_DELIVERED">Order Delivered</option>
+                                    <option value="ORDER_PLACED">Order Placed</option>
+                                </select>
+                                <input type="text" class="form-control form-control-sm" id="logsFilterUser" placeholder="Search user..." style="width:160px;" oninput="logsUserFilterDebounce()">
+                                <input type="datetime-local" class="form-control form-control-sm" id="logsFilterFrom" onchange="loadActivityLogs(1)" style="width:190px;" title="From date &amp; time">
+                                <span class="text-white small fw-medium">to</span>
+                                <input type="datetime-local" class="form-control form-control-sm" id="logsFilterTo" onchange="loadActivityLogs(1)" style="width:190px;" title="To date &amp; time">
+                                <button class="btn btn-sm btn-outline-light" onclick="logsClearDateFilter()" title="Clear date filter">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                                <span class="badge bg-light text-dark" id="logsTotalCount">0 entries</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">Date &amp; Time</th>
+                                            <th>User</th>
+                                            <th>Full Name</th>
+                                            <th>Action</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logsTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-4">
+                                                <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading logs...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="justify-content-between align-items-center p-3 border-top" id="logsPagination" style="display:none;">
+                                <button class="btn btn-sm btn-outline-secondary" id="logsPrevBtn" onclick="logsChangePage(-1)" disabled>
+                                    <i class="fa-solid fa-chevron-left"></i> Prev
+                                </button>
+                                <span class="text-muted small" id="logsPageInfo">Page 1</span>
+                                <button class="btn btn-sm btn-outline-secondary" id="logsNextBtn" onclick="logsChangePage(1)">
+                                    Next <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="flex-grow-1"></div>
+
+                
+                <footer
+                    class="d-flex flex-wrap justify-content-between align-items-center py-4 mt-auto border-top text-muted small rounded-3 p-3 shadow-sm" style="background-color: var(--card-bg); transition: background-color 0.3s, border-color 0.3s;">
+                    <div class="col-md-4 d-flex align-items-center">
+                        <span class="mb-3 mb-md-0 fw-medium">&copy; 2026 GenTri's Best. All rights reserved.</span>
+                    </div>
+
+                    <ul class="nav col-md-8 justify-content-end list-unstyled d-flex flex-wrap gap-3">
+                        <li><a class="text-sky text-decoration-none fw-medium" href="GenTrisBest_LinkHandler.html#vision">Vision &amp; Mission</a></li>
+                        <li><a class="text-sky text-decoration-none fw-medium" href="GenTrisBest_LinkHandler.html#about-us">About Us</a></li>
+                        <li><a class="text-sky text-decoration-none fw-medium" href="GenTrisBest_LinkHandler.html#help-center">Help Center</a></li>
+                        <!-- <li><a class="text-sky text-decoration-none fw-medium" href="#">Contact Support</a></li> -->
+                    </ul>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Admin Actions -->
+    <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" id="adminModalDialog">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header" id="modalHeader">
+                    <h5 class="modal-title" id="adminModalLabel">Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    Content here
+                </div>
+                <div class="modal-footer" id="modalFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+    <script>
+        (function () {
+            const toggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+            const saved = localStorage.getItem('darkMode');
+
+            if (saved === 'true') {
+                body.classList.add('dark-mode');
+                toggle.checked = true;
+            }
+
+            toggle.addEventListener('change', function () {
+                body.classList.toggle('dark-mode', this.checked);
+                localStorage.setItem('darkMode', this.checked);
+                this.closest('.form-check').querySelector('label') && null;
+                // update icon
+                const icon = document.querySelector('.dark-mode-toggle .toggle-label i');
+                icon.className = this.checked
+                    ? 'fa-solid fa-sun text-sky'
+                    : 'fa-solid fa-moon text-sky';
+            });
+
+            // sync icon on load
+            if (saved === 'true') {
+                const icon = document.querySelector('.dark-mode-toggle .toggle-label i');
+                if (icon) icon.className = 'fa-solid fa-sun text-sky';
+            }
+        })();
+    </script>
+</body>
+
+</html>
