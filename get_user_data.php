@@ -15,22 +15,7 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode([
-        'authenticated' => false,
-        'error' => 'Database connection failed',
-        'debug' => print_r(sqlsrv_errors(), true)
-    ]);
-    exit();
-}
+require_once 'db.php';
 
 // Try to fetch user data - handle if AccountType column doesn't exist
 $sql = "SELECT FirstName, LastName, Email, ContactNumber FROM Users WHERE Username = ?";
