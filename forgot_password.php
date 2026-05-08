@@ -13,14 +13,7 @@ require_once $autoloadPath;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$serverName = "DESKTOP-06731U1\\SQLEXPRESS";
-$connectionOptions = ["Database" => "SOFTENG", "Uid" => "", "PWD" => ""];
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-    exit();
-}
-
+require_once 'db.php';
 $email = isset($_POST['email']) ? trim($_POST['email']) : null;
 
 if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
