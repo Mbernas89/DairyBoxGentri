@@ -19,19 +19,7 @@ if (!isset($_SESSION['username'])) {
 }
 
 // User is authenticated, fetch their data from database
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode(['authenticated' => false, 'error' => 'Database connection failed']);
-    exit();
-}
-
+require_once 'db.php';
 $username = $_SESSION['username'];
 
 // Fetch user data
