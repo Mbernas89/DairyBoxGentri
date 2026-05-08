@@ -4,18 +4,7 @@ session_start();
 // Set JSON response header
 header('Content-Type: application/json');
 
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-    exit();
-}
+require_once 'db.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : null);
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
