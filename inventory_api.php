@@ -10,18 +10,7 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-$serverName = "DESKTOP-06731U1\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "SOFTENG",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-    exit();
-}
+require_once 'db.php';
 
 // Get current user's account type
 $username = $_SESSION['username'];
